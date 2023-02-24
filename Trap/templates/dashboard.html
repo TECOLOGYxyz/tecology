@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="header">
+    <h1>Data Dashboard</h1>
+  </div>
+  
+  <div class="row">
+    <div class="column">
+      <h2>Graph 1</h2>
+      <img src="{{ url_for('plot_data1') }}" alt="Graph 1">
+    </div>
+    <div class="column">
+      <h2>Graph 2</h2>
+      <img src="{{ url_for('plot_data2') }}" alt="Graph 2">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="column">
+      <h2>Weather Data</h2>
+      <ul>
+        <li>Temperature: {{ temperature }} C</li>
+        <li>Humidity: {{ humidity }} %</li>
+        <li>Pressure: {{ pressure }} hPa</li>
+      </ul>
+    </div>
+    <div class="column">
+      <h2>Images</h2>
+      <img src="{{ url_for('static', filename='image1.jpg') }}" alt="Image 1">
+      <img src="{{ url_for('static', filename='image2.jpg') }}" alt="Image 2">
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tecology Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  </head>
+  <body>
+
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6">
+        <h2>Live feed</h2>
+          <img src="{{ url_for('static', filename='image.jpg') }}" class="img-fluid" alt="Static Image">
+        </div>
+
+
+        <div class="col-md-6">
+          <h2>Vejr</h2>
+          <p>Temperatur: {{ temperature }}&deg;C</p>
+          <p>Fugtighed: {{ humidity }}%</p>
+          <p>Tryk: {{ pressure }}hPa</p>
+
+          <h2>Seneste observationer</h2>
+          <div class="row">
+
+            <div class="col-sm-3">
+              <img src="{{ url_for('static', filename='insect_1.png') }}" class="img-fluid" alt="Image 1" width="128" height="128">
+            </div>
+
+            <div class="col-sm-3">
+              <img src="{{ url_for('static', filename='insect_2.png') }}" class="img-fluid" alt="Image 2" width="128" height="128">
+            </div>
+
+          <div class="col-sm-3">
+            <img src="{{ url_for('static', filename='insect_3.png') }}" class="img-fluid" alt="Image 2" width="128" height="128">
+          </div>
+        </div>
+
+        <div class="row">
+        <div class="col-sm-3">
+          <img src="{{ url_for('static', filename='insect_4.jpg') }}" class="img-fluid" alt="Image 1" width="128" height="128">
+        </div>
+
+        <div class="col-sm-3">
+          <img src="{{ url_for('static', filename='insect_5.jpg') }}" class="img-fluid" alt="Image 2" width="128" height="128">
+        </div>
+
+      <div class="col-sm-3">
+        <img src="{{ url_for('static', filename='insect_6.jpg') }}" class="img-fluid" alt="Image 2" width="128" height="128">
+      </div>
+    </div>
+        </div>
+
+        </div>
+
+
+
+
+      </div>
+
+
+      <div class="row">
+        <div class="col-md-6">
+          <h2>Graph</h2>
+          <canvas id="myChart" width="400" height="400"></canvas>
+          <script src="{{ url_for('static', filename='js/plot_data.js') }}"></script>
+        </div>
+            
+
+        <div class="container-fluid">
+          <div class="row">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" class="img-fluid" alt="Image 1" width="256" height="39">
+            <p>Skærmen her viser live resultater af insektovervågning. Et kamera tager hvert minut et billede af et lille område tilplantet med sedum. En algoritme baseret på kunstig intelligens detekterer herefter eventuelle insekter i billedet og artsbestemmer dem. Den nuværende model kender 9 insektarter. Modellen vil nogle gange lave fejl, men bliver bedre i takt med, at mere data indsamles. Besøg <strong>www.tecology.ai</strong> for at lære mere.</p>
+
+
+          
+        
+      </div>
+    </div>
+  </body>
+</html>
