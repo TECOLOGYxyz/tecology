@@ -14,9 +14,19 @@ from flask import Flask, render_template, request, jsonify
 import random as rand
 import pandas as pd
 
+from picamera2 import Picamera2, Preview
+import time
+
+
 ######## WAKE UP ########
 
 def runGoodmorning():
+    picam2 = Picamera2()
+    picam2.start()
+    job = picam2.autofocus_cycle(wait=False)
+
+
+
     #light.lightPowerUp()
 
     # Check internet connection
@@ -42,6 +52,9 @@ def runGoodmorning():
     cVision.execute('''CREATE TABLE IF NOT EXISTS vision
                 (timestamp TEXT, imagePath TEXT, predictions TEXT)''')
     
+    success = picam2.wait(job) # Check if camera autofocus was a success (returns True if so)
+    print("Camera focused: ", success)
+
     return connSensor, cSensor, connVision, cVision
 
 
@@ -141,7 +154,7 @@ def index():
 if __name__ == '__main__':
     try:
         #logger.info(f'start first thread')
-        t1 = threading.Thread(target=runApp).start()
+        #t1 = threading.Thread(target=runApp).start()
         #logger.info(f'start second thread')
         t2 = threading.Thread(target=runAwake).start()
     except Exception as e:

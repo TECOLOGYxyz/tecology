@@ -38,21 +38,26 @@ def welcomeScreen():
     drawblack = ImageDraw.Draw(blackimage)
     drawred = ImageDraw.Draw(redimage)
 
-    drawblack.text((8, 12), 'WELCOME', font = font, fill = 0)
-    drawblack.text((8, 36), 'TECOLOGY', font = font, fill = 0)
-    drawblack.text((8, 55), u'Trap 1', font = font18, fill = 0)
+    #drawblack.text((8, 12), 'WELCOME', font = font, fill = 0)
+    drawblack.text((8, 36), 'TECOLOGY.ai', font = font, fill = 0)
+    drawblack.text((8, 50), u'Trap 1', font = font18, fill = 0)
 
     # Time
     #drawblack.text((0, 180), u'Time: ', font = font18, fill = 0)
     drawblack.text((0, 180), t, font = font18, fill = 0)
     
     # CPU
-    drawblack.text((0, 140), u'CPU: ', font = font18, fill = 0)
-    drawred.text((45, 140), cpu + " C", font = font18, fill = 0)
+    drawblack.text((0, 170), u'CPU: ', font = font18, fill = 0)
+    drawred.text((45, 170), cpu + " C", font = font18, fill = 0)
 
     epd.display(epd.getbuffer(blackimage),epd.getbuffer(redimage))
     
     epd.sleep()
+
+
+
+welcomeScreen()
+
 
 
 def updateScreen(currentTime, CPUtemp):
