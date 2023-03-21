@@ -1,85 +1,96 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <title>Tecology Dashboard</title>
+    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{
+      url_for('static', filename='css/index.css')
+    }}">
+
+
+    <title>TECOLOGY</title>
   </head>
   <body>
+    <h1><strong>TECOLOGY</strong> Automated Insect Monitoring</h1>
 
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
-    <div class="container-fluid">
+    <div class="container">
       <div class="row">
-        <div class="col-md-6">
-        <h2>Live feed</h2>
-          <img src="{{ url_for('static', filename='image.jpg') }}" class="img-fluid" alt="Static Image">
+
+        <div class="col">
+          <h2>Live feed</h2>
+          <img src="{{ url_for('static', filename='images/image.jpg') }}" alt="Image 1" class="img-fluid">
         </div>
 
-
-        <div class="col-md-6">
-          <h2>Vejr</h2>
-          <p>Temperatur: {{ temperature }}&deg;C</p>
-          <p>Fugtighed: {{ humidity }}%</p>
-          <p>Tryk: {{ pressure }}hPa</p>
-
-          <h2>Seneste observationer</h2>
+        <div class="col-6">
+          <h2>Seneste vejrdata</h2>
+          <div id="temperature"></div>
           <div class="row">
-
-            <div class="col-sm-3">
-              <img src="{{ url_for('static', filename='insect_1.png') }}" class="img-fluid" alt="Image 1" width="128" height="128">
+            <div class="col">
+              <h2>Seneste detektioner</h2>
+              Bla bla bla
             </div>
+          </div>
 
-            <div class="col-sm-3">
-              <img src="{{ url_for('static', filename='insect_2.png') }}" class="img-fluid" alt="Image 2" width="128" height="128">
-            </div>
 
-          <div class="col-sm-3">
-            <img src="{{ url_for('static', filename='insect_3.png') }}" class="img-fluid" alt="Image 2" width="128" height="128">
+          <!-- <div id="humidity">Luftfugtighed:</div>
+          <div id="pressure">Tryk:</div> -->
+
+          <!-- <script src="index.js"></script> -->
+          <script type=text/javascript src="{{
+            url_for('static', filename='js/index.js')
+          }}"></script>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col">
+          <h2>Oversigt</h2>
+        </div>
+ 
+        <div class="col">
+        <h2>Artsinfo</h2>
+      </div>
+      </div>
+        <!-- 
+        <div class="col">
+
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="{{ url_for('static', filename='images/dblbSvirre.jpg') }}">
+          <div class="card-body">
+            <h5 class="card-title">Mørk jordhumle</h5>
+            <p class="card-text">Arten er en de mest almindelige humlebier i Danmark. Humlebierne har et-årige samfund og få overvintrende dronninger fører slægten videre året efter.</p>
           </div>
         </div>
-
-        <div class="row">
-        <div class="col-sm-3">
-          <img src="{{ url_for('static', filename='insect_4.jpg') }}" class="img-fluid" alt="Image 1" width="128" height="128">
-        </div>
-
-        <div class="col-sm-3">
-          <img src="{{ url_for('static', filename='insect_5.jpg') }}" class="img-fluid" alt="Image 2" width="128" height="128">
-        </div>
-
-      <div class="col-sm-3">
-        <img src="{{ url_for('static', filename='insect_6.jpg') }}" class="img-fluid" alt="Image 2" width="128" height="128">
       </div>
-    </div>
+
+          <div class="col">
+
+          <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="..." alt="Card image cap">
+            <div class="card-body">
+              <h5 class="card-title">Dobbeltbånde svirreflue</h5>
+              <p class="card-text">Arten er almindelig i Danmark, men dens hyppighed skyldes primært migration sydfra i forsommeren. Larven er en vigtig prædator på bladslus, også i dyrkede afgrøder.</p>
+            </div>
+          </div>
         </div>
+      </div> -->
 
-        </div>
-
-
-
-
-      </div>
 
 
       <div class="row">
-        <div class="col-md-6">
-          <h2>Graph</h2>
-          <canvas id="myChart" width="400" height="400"></canvas>
-          <script src="{{ url_for('static', filename='js/plot_data.js') }}"></script>
+        <div class="col">
+          <hr class="bg-dark border-2 border-top border-dark">
+          TECOLOGY info tekst. Systemet udvikles af den Aarhusianske start-up virksomhed Tecology (www.tecology.ai). Et grønt område på taget af denne bygning overvåges med et kamerasystem. Systemet anvender kunstig intelligens til at detektere og artsbestemme insekter. Den nuværende model kender x forskellige arter. Lidt om fejl. I takt med at data indsamles, kan modellen forbedres og udvides til andre arter.
         </div>
-            
-
-        <div class="container-fluid">
-          <div class="row">
-            <img src="{{ url_for('static', filename='logo.jpg') }}" class="img-fluid" alt="Image 1" width="256" height="39">
-            <p>Skærmen her viser live resultater af insektovervågning. Et kamera tager hvert minut et billede af et lille område tilplantet med sedum. En algoritme baseret på kunstig intelligens detekterer herefter eventuelle insekter i billedet og artsbestemmer dem. Den nuværende model kender 9 insektarter. Modellen vil nogle gange lave fejl, men bliver bedre i takt med, at mere data indsamles. Besøg <strong>www.tecology.ai</strong> for at lære mere.</p>
-
-
-          
-        
-      </div>
     </div>
+  </div>
   </body>
 </html>
