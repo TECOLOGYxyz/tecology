@@ -2,6 +2,7 @@ import board
 import neopixel
 import time
 
+
 pixels = neopixel.NeoPixel(board.D18, 18)
 pixel_pin = board.D18
 num_pixels = 30
@@ -26,6 +27,15 @@ def lightWifiBad():
 def lightKill():
     pixels.fill((0,0,0))
     pixels.show()
+
+def lightGreenFlash():
+    pixels.fill((0,255,0))
+    pixels.show()
+    time.sleep(0.5)
+    pixels.fill((0,0,0))
+    pixels.show()
+
+
 
 def lightPowerUp():
     for k in range(5):
