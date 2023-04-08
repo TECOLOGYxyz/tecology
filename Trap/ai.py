@@ -220,7 +220,8 @@ def detection_matrix(predictions: np.ndarray, multi_label: bool,
 names = ['butterfly', 'cricket', 'dragonfly']
 colors = {name:[random.randint(0, 255) for _ in range(3)] for i,name in enumerate(names)}
 
-def convert_output(output):
+
+def convert_output(output): # This should be loop for multilabel
     classID = names[int(output[0][0][5])]
     xmin = int(output[0][0][0])
     ymin = int(output[0][0][1])
@@ -348,6 +349,8 @@ def inference(inpImg):
     conOut = convert_output(nmsOut)
 
     print(nmsOut)
+
+    # Add if detection made statement
     title = conOut[1] + ": " + str(round(100*conOut[2], 2)) + "%"
     
     draw_bbox(inpImg, conOut[0], title)
