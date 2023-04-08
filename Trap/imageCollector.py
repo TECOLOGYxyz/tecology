@@ -1,8 +1,8 @@
 
 from picamera2 import Picamera2, Preview
 import time
-
 import light
+from datetime import datetime
 
 picam2 = Picamera2()
 camera_config = picam2.create_still_configuration(main={"size": (4608, 2592)})
@@ -10,14 +10,14 @@ picam2.configure(camera_config)
 picam2.start()
 
 
-light.lightPowerUp()
+for i in range(10):
+    
+    job = picam2.autofocus_cycle(wait=False)
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    success = picam2.wait(job)
+    
+    picam2.capture_file("images/" + timestamp + "_" + str(i) + ".jpg")
+    light.lightGreenFlash()
 
-classes = ["one", "two", "three"]
-
-for j in classes:
-    for i in range(1):
-        job = picam2.autofocus_cycle(wait=False)
-        success = picam2.wait(job)
-        
-        picam2.capture_file("images/" + j + "_" + str(i) + ".jpg")
+    time.sleep(2)
 
