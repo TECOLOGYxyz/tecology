@@ -222,10 +222,7 @@ colors = {name:[random.randint(0, 255) for _ in range(3)] for i,name in enumerat
 
 
 def convert_output(output): # This should be loop for multilabel
-    print("From conv")
-    print(output)
-    print(output[0][:])
-    
+ 
     IDs = [names[int(o[5])] for o in output[0]]
     xmins = [int(o[0]* (4608/640)) for o in output[0]]
     ymins = [int(o[1]* (2592/640)) for o in output[0]]
@@ -276,24 +273,22 @@ def draw_bbox(image: np.ndarray,
     """
 
     for b in bbox:
-        print(b)
-    # generate random color
-
         color = random_color()
 
         # convert cordinates to int
         x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
 
         # add title
-        if title:
-            scale = min(image.shape[0], image.shape[1]) / (640 / 0.5)
-            text_size = cv2.getTextSize(title, 0, fontScale=scale, thickness=1)[0]
-            top_left = (x1 - thickness + 1, y1 - text_size[1] - 20)
-            bottom_right = (x1 + text_size[0] + 5, y1)
+        title = b[5] + ": " + str(round(100*b[4], 2)) + "%"
 
-            cv2.rectangle(image, top_left, bottom_right, color=color, thickness=-1)
-            cv2.putText(image, title, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX,
-                        scale, (255, 255, 255), 2)
+        scale = min(image.shape[0], image.shape[1]) / (640 / 0.5)
+        text_size = cv2.getTextSize(title, 0, fontScale=scale, thickness=1)[0]
+        top_left = (x1 - thickness + 1, y1 - text_size[1] - 20)
+        bottom_right = (x1 + text_size[0] + 5, y1)
+
+        cv2.rectangle(image, top_left, bottom_right, color=color, thickness=-1)
+        cv2.putText(image, title, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                    scale, (255, 255, 255), 2)
 
         # add box
         cv2.rectangle(image, (x1, y1), (x2, y2), color=color, thickness=thickness)
@@ -349,82 +344,16 @@ def inference(inpImg):
     
     # Run NMS on the model output
     nmsOut = non_max_suppression_np(outputs[0])
-    print("NMS output")
-    print(nmsOut)
 
-    cv2.imwrite("output_image1.jpg", inpImg)
+
+
+    #cv2.imwrite("output_image1.jpg", inpImg)
     conOut = convert_output(nmsOut)
 
-    
-
-    # Add if detection made statement
-    #title = conOut[1] + ": " + str(round(100*conOut[2], 2)) + "%"
-
-    draw_bbox(inpImg, conOut)
-    #print(conOut[0], title)
-    # write image
-    cv2.imwrite("output_image2.jpg", inpImg)
-
-
-#inference(cv2.imread(r'bfTest640.jpg'))
-
-
-
-
-# #### Run on single file
-# inputImg = cv2.imread(r'../bfTest640.jpg')
-# img = cv2.cvtColor(inputImg, cv2.COLOR_BGR2RGB)
-
-# #image = img.copy()
-# #image, ratio, dwdh = letterbox(image, auto=False) # Not sure if letterbox should be used. Removing it for now.
-# image = img.transpose((2, 0, 1))
-# image = np.expand_dims(image, 0)
-# image = np.ascontiguousarray(image)
-
-# im = image.astype(np.float32)
-# im /= 255
-
-# inname = [i.name for i in session.get_inputs()]
-# inputs = {inname[0]:im}
-
-
-############################# # Load an image with PIL
-# Fix this if opencv doesn't run well on rpi.
-
-# pilImg = Image.open(r'../dfTest640.jpg') #.resize((640, 640))
-# img = np.array(pilImg).astype('float32')
-# image = Image.open('dfTest640.jpg') #.resize((640, 640))
-# print(image)
-# a_channel = Image.new('L', image.size, 255)   # 'L' 8-bit pixels, black and white
-# image.putalpha(a_channel)
-# image = np.array(image).astype('float32')
-# # print(image.shape)
-# image = np.transpose(image, [2, 0, 1])  # Change the image shape to (C, H, W)
-# image /= 255.0  # Normalize the image
-
-# #image = np.array([[1, 3], [640, 640]], dtype=np.float32)
-# #image = np.empty((1, 3, 640, 640), dtype=np.float32)
-# print("Shape: ", image.shape)
-#inputs = {input_name: image}
-#######################################################3
-
-
-
-
-# # Run the model on the image
-# outputs = session.run([output_name], inputs)
-
-# # Run NMS on the model output
-# k = non_max_suppression_np(outputs[0])
-
-# c = convert_output(k)
-
-# title = c[1] + ": " + str(round(100*c[2], 2)) + "%"
-
-# draw_bbox(inputImg, c[0], title)
-# #print(type(im))
-# print(im.shape)
-
-# # write image
-# cv2.imwrite("output_image.jpg", inputImg)
-# # print("Image saved")
+    if conOut:
+        print("Detections made. Returning box image and coordinates")
+        draw_bbox(inpImg, conOut)
+        return inpImg, conOut
+    else:
+        print("No detections made. Returning None.")
+        return None
