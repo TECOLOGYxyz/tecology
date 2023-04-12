@@ -222,20 +222,21 @@ colors = {name:[random.randint(0, 255) for _ in range(3)] for i,name in enumerat
 
 
 def convert_output(output): # This should be loop for multilabel
-    classID = names[int(output[0][0][5])]
-    xmin = int(output[0][0][0])
-    ymin = int(output[0][0][1])
-    xmax = int(output[0][0][2])
-    ymax = int(output[0][0][3])
+    print("From conv")
+    print(output)
+    print(output[0][:])
+    
+    IDs = [names[int(o[5])] for o in output[0]]
+    xmins = [int(o[0]* (4608/640)) for o in output[0]]
+    ymins = [int(o[1]* (2592/640)) for o in output[0]]
+    xmaxs = [int(o[2]* (4608/640)) for o in output[0]]
+    ymaxs = [int(o[3]* (2592/640)) for o in output[0]]
+    confs = [round(o[4], 3) for o in output[0]]
 
-    xmin = int(xmin * (4608/640))
-    ymin = int(ymin * (2592/640))
-    xmax = int(xmax * (4608/640))
-    ymax = int(ymax * (2592/640))
+    zipped = list(zip(xmins, ymins, xmaxs, ymaxs, confs, IDs))
+    print(zipped)
 
-
-    classConf = round(output[0][0][4], 5)
-    return [[xmin, ymin, xmax, ymax], classID, classConf]
+    return zipped
 
 
 RGB_PALETTE = ((255, 56, 56), (255, 157, 151), (255, 112, 31), (255, 178, 29),
@@ -260,7 +261,7 @@ def random_color(bgr: bool = True) -> Tuple[int]:
 
 
 def draw_bbox(image: np.ndarray,
-              bbox: np.ndarray,
+              bbox: list,
               title: Optional[str] = None,
               color: Optional[Tuple[int]] = None,
               thickness: Optional[int] = 3) -> None:
@@ -273,26 +274,29 @@ def draw_bbox(image: np.ndarray,
         color (Optional[Tuple[int]], optional): color of the box. Defaults to None (random color)
         thickness (Optional[int], optional): thickness of the box. Defaults to 2.
     """
+
+    for b in bbox:
+        print(b)
     # generate random color
-    if color is None:
+
         color = random_color()
 
-    # convert cordinates to int
-    x1, y1, x2, y2 = map(int, bbox[:4])
+        # convert cordinates to int
+        x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
 
-    # add title
-    if title:
-        scale = min(image.shape[0], image.shape[1]) / (640 / 0.5)
-        text_size = cv2.getTextSize(title, 0, fontScale=scale, thickness=1)[0]
-        top_left = (x1 - thickness + 1, y1 - text_size[1] - 20)
-        bottom_right = (x1 + text_size[0] + 5, y1)
+        # add title
+        if title:
+            scale = min(image.shape[0], image.shape[1]) / (640 / 0.5)
+            text_size = cv2.getTextSize(title, 0, fontScale=scale, thickness=1)[0]
+            top_left = (x1 - thickness + 1, y1 - text_size[1] - 20)
+            bottom_right = (x1 + text_size[0] + 5, y1)
 
-        cv2.rectangle(image, top_left, bottom_right, color=color, thickness=-1)
-        cv2.putText(image, title, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX,
-                    scale, (255, 255, 255), 2)
+            cv2.rectangle(image, top_left, bottom_right, color=color, thickness=-1)
+            cv2.putText(image, title, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                        scale, (255, 255, 255), 2)
 
-    # add box
-    cv2.rectangle(image, (x1, y1), (x2, y2), color=color, thickness=thickness)
+        # add box
+        cv2.rectangle(image, (x1, y1), (x2, y2), color=color, thickness=thickness)
 
 
 
@@ -345,16 +349,19 @@ def inference(inpImg):
     
     # Run NMS on the model output
     nmsOut = non_max_suppression_np(outputs[0])
+    print("NMS output")
+    print(nmsOut)
+
     cv2.imwrite("output_image1.jpg", inpImg)
     conOut = convert_output(nmsOut)
 
-    print(nmsOut)
+    
 
     # Add if detection made statement
-    title = conOut[1] + ": " + str(round(100*conOut[2], 2)) + "%"
-    
-    draw_bbox(inpImg, conOut[0], title)
-    print(conOut[0], title)
+    #title = conOut[1] + ": " + str(round(100*conOut[2], 2)) + "%"
+
+    draw_bbox(inpImg, conOut)
+    #print(conOut[0], title)
     # write image
     cv2.imwrite("output_image2.jpg", inpImg)
 
