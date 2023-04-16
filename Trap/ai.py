@@ -326,7 +326,7 @@ def letterbox(im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleu
 
 
 def inference(inpImg):
-    inpImg = cv2.cvtColor(inpImg, cv2.COLOR_BGR2RGB)
+    
     # Add resize step??
     image640 = cv2.resize(inpImg, (640, 640))
     image = image640.transpose((2, 0, 1))

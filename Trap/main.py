@@ -21,6 +21,13 @@ import helpers
 import screen
 import ai
 
+
+###
+# Remember to put Restart=always in systemd service config!
+
+
+
+###
 # Set up configs
 logging.basicConfig(level=logging.DEBUG)
 
@@ -113,6 +120,7 @@ def runAwake(dataToday, picam2):
 
         
         array = picam2.capture_array("main")
+        array = cv2.cvtColor(array, cv2.COLOR_BGR2RGB)
         light.lightGreenFlash()
         
         ai.inference(array)

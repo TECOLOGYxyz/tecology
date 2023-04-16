@@ -26,15 +26,18 @@ def echo(sock):
         #cursor = conn.execute("SELECT number FROM environment ORDER BY id DESC LIMIT 1")
         x = conn.execute("SELECT temperature, pressure, humidity FROM environment ORDER BY id DESC LIMIT 1")
         print("Hello")
-        print(x.fetchall())
+        envV = x.fetchall()[0]
+        latestTemp, latestPress, latestHumi = envV[0], envV[1], envV[2]
 
         # latestTemp = cursor.fetchone()[0]
         # latestHumi = cursor.fetchone()[0]
         # latestPress = cursor.fetchone()[0]
 
-        sock.send(str(latestTemp)) # Convert to string and send to client
-        sock.send(str(latestHumi))
-        sock.send(str(latestPress))
+        sock.send([str(latestTemp), str(latestHumi), str(latestPress)])
+
+        # sock.send(str(latestTemp)) # Convert to string and send to client
+        # sock.send(str(latestHumi))
+        # sock.send(str(latestPress))
 
         ### Vision
 
