@@ -28,12 +28,13 @@ def echo(sock):
         print("Hello")
         envV = x.fetchall()[0]
         latestTemp, latestPress, latestHumi = envV[0], envV[1], envV[2]
-
+        print(envV)
         # latestTemp = cursor.fetchone()[0]
         # latestHumi = cursor.fetchone()[0]
         # latestPress = cursor.fetchone()[0]
-
-        sock.send([str(latestTemp), str(latestHumi), str(latestPress)])
+        s = f'{{"temperature": {latestTemp}, "humidity": {latestHumi}, "pressure": {latestPress}}}'
+        sock.send(s)
+        #sock.send('{"temperature": latestTemp, "humidity": "70", "pressure": "1013"}')
 
         # sock.send(str(latestTemp)) # Convert to string and send to client
         # sock.send(str(latestHumi))
