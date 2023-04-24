@@ -14,7 +14,7 @@ from gpiozero import CPUTemperature
 #     epd.init()
 #     epd.Clear() 
 
-def welcomeScreen():
+def welcomeScreen(hostName, hostAddress, netStatus):
     cpu = CPUTemperature()
     cpu = str(round(cpu.temperature, 1))
 
@@ -29,7 +29,8 @@ def welcomeScreen():
     blackimage = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
     redimage = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
     
-    fontPath = os.path.join(os.getcwd(), "drivers", 'Font.ttc')
+    #fontPath = os.path.join(os.getcwd(), "drivers", 'Font.ttc')
+    fontPath = '/home/tecologyTrap1/tecology/Trap/drivers/Font.ttc'
     fontLarge = ImageFont.truetype(fontPath, 40)
     font = ImageFont.truetype(fontPath, 24)
     font18 = ImageFont.truetype(fontPath, 18)
@@ -39,16 +40,22 @@ def welcomeScreen():
     drawred = ImageDraw.Draw(redimage)
 
     #drawblack.text((8, 12), 'WELCOME', font = font, fill = 0)
-    drawblack.text((8, 36), 'TECOLOGY.ai', font = font, fill = 0)
-    drawblack.text((8, 50), u'Trap 1', font = font18, fill = 0)
+    drawblack.text((30, 0), 'TECOLOGY.ai', font = font, fill = 0) # Bottom y is about 180
+    #drawblack.text((30, 20), u'Trap 1', font = font18, fill = 0)
 
-    # Time
+    # # # Write ip
+    drawblack.text((2, 50), 'Host info', font = font, fill = 0)
+    drawblack.text((2, 80), hostName, font = font18, fill = 0)
+    drawblack.text((2, 110), hostAddress, font = font18, fill = 0)
+    drawblack.text((2, 140), 'Internet: ' + netStatus, font = font18, fill = 0)
+
+    # # # Time
     #drawblack.text((0, 180), u'Time: ', font = font18, fill = 0)
     drawblack.text((0, 180), t, font = font18, fill = 0)
     
-    # CPU
-    drawblack.text((0, 170), u'CPU: ', font = font18, fill = 0)
-    drawred.text((45, 170), cpu + " C", font = font18, fill = 0)
+    # # # CPU
+    #drawblack.text((0, 150), u'CPU: ', font = font18, fill = 0)
+    drawred.text((150, 180), cpu + " C", font = font18, fill = 0)
 
     epd.display(epd.getbuffer(blackimage),epd.getbuffer(redimage))
     
@@ -56,7 +63,7 @@ def welcomeScreen():
 
 
 
-welcomeScreen()
+#welcomeScreen()
 
 
 
