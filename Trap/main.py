@@ -3,12 +3,15 @@
 from configparser import ConfigParser
 import time
 import sqlite3
-from datetime import datetime
+import datetime
 import random as rand
 from picamera2 import Picamera2, Preview
 import os
 import logging
 import cv2
+from gpiozero import CPUTemperature
+import csv
+from collections import Counter
 
 # Webapp
 import threading
@@ -47,6 +50,41 @@ cVision = connSensor.cursor()
 cVision.execute('''CREATE TABLE IF NOT EXISTS vision
             (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, imagePath TEXT, drawPath TEXT, predictions TEXT)''')
 
+
+# Initialize SQLite database connection and create table to store detection overview
+logging.info("Setting up detections database")
+connDetect = sqlite3.connect('data/detections.db')
+cDetect = connDetect.cursor()
+cDetect.execute('''CREATE TABLE IF NOT EXISTS detect
+            (class TEXT, today REAL, total REAL)''')
+
+with open('classes.txt', newline='') as csvfile:
+    spamreader = csv.reader(csvfile)
+    print(spamreader)
+    classes = [row[0] for row in spamreader]
+
+
+
+# Check if the classes already exist in the detect table
+existing_classes = []
+cDetect.execute("SELECT class FROM detect")
+for row in cDetect.fetchall():
+    existing_classes.append(row[0])
+
+# Insert new classes into the detect table if they don't already exist
+classes_to_insert = [(c, 0, 0) for c in classes if c not in existing_classes]
+if classes_to_insert:
+    cDetect.executemany('INSERT INTO detect VALUES(?,?,?);', classes_to_insert)
+    connDetect.commit()
+
+# Close the database connection
+connDetect.close()
+
+# classesDB = [(c, 0, 0) for c in classes]
+# cDetect.executemany('INSERT INTO detect VALUES(?,?,?);', classesDB)
+# connDetect.commit()
+
+
 # # Check internet connection
 logging.info("Checking internet connection")
 helpers.checkInternet()
@@ -59,7 +97,7 @@ def runGoodmorning():
     light.lightPowerUp()
 
     # Create folders for todays data
-    today = datetime.now().strftime('%Y-%m-%d')
+    today = datetime.datetime.now().strftime('%Y-%m-%d')
     dataToday = os.path.join("data", today)
 
     if not os.path.exists(dataToday):
@@ -85,9 +123,19 @@ def runGoodmorning():
 
 # ######## AWAKE ########
 
+maxInterval = 5
+cpuThreshold = 68
+
+
 def runAwake(dataToday, picam2):
+
+    # Set today of detections to zero
+
+    startTime = datetime.datetime.now()
     i = 0
+    interval = maxInterval
     while True:
+        
         print("Still running main worker: ", i)
         i += 1
 
@@ -100,7 +148,7 @@ def runAwake(dataToday, picam2):
         humidity =  rand.randint(40,80) #bme280.humidity
 
         # Get current timestamp
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         # Insert data into env database
         connSensor = sqlite3.connect('data/environment.db')
@@ -109,23 +157,87 @@ def runAwake(dataToday, picam2):
         cSensor.execute('INSERT INTO environment (timestamp, temperature, humidity, pressure) VALUES (?, ?, ?, ?)', (timestamp,temperature,humidity,pressure))
         connSensor.commit()
         print("Env. variables saved")
-        time.sleep(5)
 
 
 
-         ### Vision ###
+        ### Vision ###
 
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         imagePath = os.path.join(dataToday, timestamp+".jpg")
 
         
         array = picam2.capture_array("main")
         array = cv2.cvtColor(array, cv2.COLOR_BGR2RGB)
-        light.lightGreenFlash()
-        
-        ai.inference(array)
 
-        cv2.imwrite(imagePath, array)
+        arrayInf = array.copy()
+        p = ai.inference(arrayInf)
+
+        if p:
+            arrayInf, conOut = p
+            cv2.imwrite(imagePath, array)
+            startTime = datetime.datetime.now()
+            
+            detectionCount = Counter(insect for _, _, _, _, _, insect in conOut)
+
+            connDetect = sqlite3.connect('data/detections.db')
+            cDetect = connDetect.cursor()
+
+            for insect, count in detectionCount.items():
+                # Query the current values of today and total columns for the insect
+                cDetect.execute("SELECT today, total FROM detect WHERE class=?", (insect,))
+                row = cDetect.fetchone()
+
+                # Update the today and total columns with the new counts
+                today = row[0] + count
+                total = row[1] + count
+
+                # Update the values in the detect table for the insect
+                cDetect.execute("UPDATE detect SET today=?, total=? WHERE class=?", (today, total, insect))
+
+            # Commit the changes to the database
+            connDetect.commit()
+
+            # Close the database connection
+            connDetect.close()
+
+            # TODO: Save detection coordinates to database!
+        else:
+            elapsed = datetime.datetime.now() - startTime
+            if elapsed > datetime.timedelta(minutes=5):
+                cv2.imwrite(imagePath, array)
+                print("+5 minutes passed. Blank saved.")
+                startTime = datetime.datetime.now()
+                # TODO: Save info to database!
+
+        cv2.imwrite('static/latest.jpg', arrayInf)
+
+
+        # Throttle and sleep
+        cpu = CPUTemperature()
+        cpu = round(cpu.temperature, 1)
+ 
+        if cpu > cpuThreshold:
+            interval = maxInterval * 2
+            print(f"CPU temperature too high ({str(cpu)} C). Throttling down to run task every {interval} seconds.")
+            time.sleep(interval)
+        else:
+            if interval > maxInterval:
+                interval = max(1, maxInterval // 2)
+                time.sleep(interval)
+                print(f"CPU temperature normal ({str(cpu)} C). Ramping down to run task every {interval} seconds.")
+            else:
+                print(f"CPU temperature normal ({str(cpu)} C). Running task every {interval} seconds.")
+                time.sleep(interval)
+
+
+        # print("Current cpu temp: ", cpu)
+
+        # print("Sleeping for ", interval, " seconds.")
+        # time.sleep(interval)
+
+
+
+        #time.sleep(10.0 - ((time.time() - starttime) % 10.0))
 
 #         # Save image
         
