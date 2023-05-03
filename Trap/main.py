@@ -12,6 +12,7 @@ import cv2
 from gpiozero import CPUTemperature
 import csv
 from collections import Counter
+import socket
 
 # Webapp
 import threading
@@ -37,7 +38,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Initialize SQLite database connection and create table to store sensor data
 logging.info("Setting up environment database")
-connSensor = sqlite3.connect('data/environment.db')
+connSensor = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/environment.db')
 cSensor = connSensor.cursor()
 cSensor.execute('''CREATE TABLE IF NOT EXISTS environment
             (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, temperature REAL, pressure REAL, humidity REAL)''')
@@ -45,7 +46,7 @@ cSensor.execute('''CREATE TABLE IF NOT EXISTS environment
 
 # Initialize SQLite database connection and create table to store image data
 logging.info("Setting up vision database")
-connVision = sqlite3.connect('data/vision.db')
+connVision = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/vision.db')
 cVision = connSensor.cursor()
 cVision.execute('''CREATE TABLE IF NOT EXISTS vision
             (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, imagePath TEXT, drawPath TEXT, predictions TEXT)''')
@@ -53,12 +54,12 @@ cVision.execute('''CREATE TABLE IF NOT EXISTS vision
 
 # Initialize SQLite database connection and create table to store detection overview
 logging.info("Setting up detections database")
-connDetect = sqlite3.connect('data/detections.db')
+connDetect = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/detections.db')
 cDetect = connDetect.cursor()
 cDetect.execute('''CREATE TABLE IF NOT EXISTS detect
             (class TEXT, today REAL, total REAL)''')
 
-with open('classes.txt', newline='') as csvfile:
+with open('/home/tecologyTrap1/tecology/Trap/classes.txt', newline='') as csvfile:
     spamreader = csv.reader(csvfile)
     print(spamreader)
     classes = [row[0] for row in spamreader]
@@ -90,8 +91,22 @@ logging.info("Checking internet connection")
 helpers.checkInternet()
 
 # Set welcome screen
-#screen.welcomeScreen()
+hostName = socket.gethostname()
+ip_address = socket.gethostbyname(hostName)
+hostAddress = socket.gethostbyname(hostName + ".local")
 
+# print(f"Hostname: {hostName}")
+# print("IP: ", ip_address)
+# print(f"Host Address: {hostAddress, }")
+
+# Check internet
+
+if helpers.checkInternet():
+    netStatus = "OK"
+else:
+    netStatus = "No"
+
+screen.welcomeScreen(hostName, hostAddress, netStatus)
 
 def runGoodmorning():
     light.lightPowerUp()
@@ -151,7 +166,7 @@ def runAwake(dataToday, picam2):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         # Insert data into env database
-        connSensor = sqlite3.connect('data/environment.db')
+        connSensor = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/environment.db')
         cSensor = connSensor.cursor()
         #cSensor.execute("INSERT INTO environment VALUES (?, ?, ?, ?)", (timestamp, temperature, pressure, humidity))
         cSensor.execute('INSERT INTO environment (timestamp, temperature, humidity, pressure) VALUES (?, ?, ?, ?)', (timestamp,temperature,humidity,pressure))
@@ -179,7 +194,7 @@ def runAwake(dataToday, picam2):
             
             detectionCount = Counter(insect for _, _, _, _, _, insect in conOut)
 
-            connDetect = sqlite3.connect('data/detections.db')
+            connDetect = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/detections.db')
             cDetect = connDetect.cursor()
 
             for insect, count in detectionCount.items():
@@ -209,7 +224,7 @@ def runAwake(dataToday, picam2):
                 startTime = datetime.datetime.now()
                 # TODO: Save info to database!
 
-        cv2.imwrite('static/latest.jpg', arrayInf)
+        cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', arrayInf)
 
 
         # Throttle and sleep
