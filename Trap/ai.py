@@ -9,7 +9,7 @@ import random
 
 
 # Load the ONNX model
-session = onnxruntime.InferenceSession(r'best.onnx')
+session = onnxruntime.InferenceSession(r'/home/tecologyTrap1/tecology/Trap/best.onnx')
 
 # Define input and output names
 input_name = session.get_inputs()[0].name
