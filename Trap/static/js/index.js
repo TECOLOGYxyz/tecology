@@ -48,9 +48,9 @@ socket.addEventListener('message', ev => {
   log('Luftfugtighed: ' + data.humidity + '%', 'blue');
   log('Lufttryk: ' + data.pressure + 'hPa', 'green');
   
-  document.getElementById('log2').innerHTML = ''; // Clear existing content
-  log2('Detektioner i dag: ' + data.temperature + '     Detektioner i alt: ' + data.temperature, 'black');
-  log2('Ofest set: ' + data.temperature + '     Sjældnest set: ' + data.temperature, 'black');
+  // document.getElementById('log2').innerHTML = ''; // Clear existing content
+  // log2('Detektioner i dag: ' + data.temperature + '     Detektioner i alt: ' + data.temperature, 'black');
+  // log2('Ofest set: ' + data.temperature + '     Sjældnest set: ' + data.temperature, 'black');
   checkImage();
 });
 
