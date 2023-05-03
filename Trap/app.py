@@ -17,7 +17,7 @@ def index():
 
 @sock.route('/echo')
 def echo(sock):
-    conn = sqlite3.connect('data/environment.db')
+    conn = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/environment.db')
     c = conn.cursor()
     while True:
 
@@ -29,18 +29,9 @@ def echo(sock):
         envV = x.fetchall()[0]
         latestTemp, latestPress, latestHumi = envV[0], envV[1], envV[2]
         print(envV)
-        # latestTemp = cursor.fetchone()[0]
-        # latestHumi = cursor.fetchone()[0]
-        # latestPress = cursor.fetchone()[0]
+
         s = f'{{"temperature": {latestTemp}, "humidity": {latestHumi}, "pressure": {latestPress}}}'
         sock.send(s)
-        #sock.send('{"temperature": latestTemp, "humidity": "70", "pressure": "1013"}')
-
-        # sock.send(str(latestTemp)) # Convert to string and send to client
-        # sock.send(str(latestHumi))
-        # sock.send(str(latestPress))
-
-        ### Vision
 
 
         time.sleep(5)
