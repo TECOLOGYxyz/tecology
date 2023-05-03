@@ -124,12 +124,12 @@ def runGoodmorning():
 # ######## AWAKE ########
 
 maxInterval = 5
-cpuThreshold = 68
-
+cpuThreshold = 72
 
 def runAwake(dataToday, picam2):
+    light.lightKill()
 
-    # Set today of detections to zero
+    #TODO: Set today of detections to zero
 
     startTime = datetime.datetime.now()
     i = 0
@@ -218,15 +218,15 @@ def runAwake(dataToday, picam2):
  
         if cpu > cpuThreshold:
             interval = maxInterval * 2
-            print(f"CPU temperature too high ({str(cpu)} C). Throttling down to run task every {interval} seconds.")
+            print(f"CPU temperature too high ({str(cpu)} C). Throttling down to run inference every {interval} seconds.")
             time.sleep(interval)
         else:
             if interval > maxInterval:
-                interval = max(1, maxInterval // 2)
+                interval = max(maxInterval, interval // 2)
                 time.sleep(interval)
-                print(f"CPU temperature normal ({str(cpu)} C). Ramping down to run task every {interval} seconds.")
+                print(f"CPU temperature normal ({str(cpu)} C). Ramping down to run inference every {interval} seconds.")
             else:
-                print(f"CPU temperature normal ({str(cpu)} C). Running task every {interval} seconds.")
+                print(f"CPU temperature normal ({str(cpu)} C). Running inference every {interval} seconds.")
                 time.sleep(interval)
 
 
