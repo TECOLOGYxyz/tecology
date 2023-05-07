@@ -107,8 +107,6 @@ socket.addEventListener('message', ev => {
   log('Luftfugtighed: ' + data.humidity + '%', 'blue');
   log('Lufttryk: ' + data.pressure + 'hPa', 'green');
   
-  
-  
   document.getElementById('log2').innerHTML = ''; // Clear existing content
   log2('Oftest set: ' + data.seenMostClass + ' (' + data.seenMostNumber + ')', 'black', 1.3)
   log2('Sjældnest set: ' + data.seenLeastClass + ' (' + data.seenLeastNumber + ')', 'black', 1.3)
@@ -117,54 +115,13 @@ socket.addEventListener('message', ev => {
   log3('Detektioner i dag: ' + data.sumToday, 'black', 1.3)
   log3('Detektioner i alt: ' + data.sumTotal, 'black', 1.3)
 
-  
 
-  // log2('Detektioner i dag: ' + data.temperature + '     Detektioner i alt: ' + data.temperature, 'black');
-  // log2('Ofest set: ' + data.temperature + '     Sjældnest set: ' + data.temperature, 'black');
   checkImage();
 });
 
 // Call renderRandomCards initially and then every 5 seconds
 renderRandomCards();
-setInterval(renderRandomCards, 5000);
-
-
-
-
-
-// const log = (text, color) => {
-//   document.getElementById('log').innerHTML += `<span style="color: ${color}">${text}</span><br>`;
-// };
-
-// // const reloadImage = () => {
-// //   const img = document.getElementById('image');
-// //   const timestamp = new Date().getTime();
-// //   img.src = img.src.split('?')[0] + '?' + timestamp;
-// // };
-
-
-// function reloadImage() {
-//   const img = document.getElementById('image');
-//   img.onerror = function() {
-//     console.log('Failed to load image, retrying in 5 seconds...');
-//     setTimeout(reloadImage, 500); // retry after 0.5 seconds
-//   }
-//   img.onload = function() {
-//     console.log('Image reloaded successfully.');
-//   }
-//   img.src = img.src + '?rand=' + Math.random(); // add random query param to force reload
-// }
-
-// const socket = new WebSocket('ws://' + location.host + '/echo');
-// socket.addEventListener('message', ev => {
-//   const data = JSON.parse(ev.data);
-//   document.getElementById('log').innerHTML = ''; // Clear existing content
-//   log('Temperature: ' + data.temperature + '&deg;C', 'black');
-//   log('Humidity: ' + data.humidity + '%', 'blue');
-//   log('Pressure: ' + data.pressure + 'hPa', 'green');
-//   reloadImage();
-// });
-
+setInterval(renderRandomCards, 60000);
 
 
 
