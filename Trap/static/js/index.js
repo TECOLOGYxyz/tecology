@@ -11,6 +11,61 @@ const log3 = (text, color, size) => {
 };
 
 
+const cards = [
+  {
+    imageSrc: "dblbSvirre.jpg",
+    title: "Mørk jordhumle",
+    text: "Arten er en de mest almindelige humlebier i Danmark. Humlebierne har et-årige samfund og få overvintrende dronninger fører slægten videre året efter."
+  },
+  {
+    imageSrc: "dblbSvirre.jpg",
+    title: "Hullubullu",
+    text: "Arten er en efter."
+  },
+  {
+    imageSrc: "dblbSvirre.jpg",
+    title: "Halaballa",
+    text: "Arten er slægten videre året efter."
+  },
+  // Add more card objects here
+];
+
+
+const renderCard = (card) => {
+  return `
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="static/${card.imageSrc}">
+      <div class="card-body">
+        <h5 class="card-title">${card.title}</h5>
+        <p class="card-text">${card.text}</p>
+      </div>
+    </div>
+  `;
+};
+
+const renderRandomCards = () => {
+  const container = document.getElementById('speciesCards');
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Select two random cards
+  const randomCards = [];
+  while (randomCards.length < 2) {
+    const randomIndex = Math.floor(Math.random() * cards.length);
+    const randomCard = cards[randomIndex];
+    if (!randomCards.includes(randomCard)) {
+      randomCards.push(randomCard);
+    }
+  }
+
+  // Render the selected cards
+  randomCards.forEach((card) => {
+    const cardHtml = renderCard(card);
+    container.innerHTML += cardHtml;
+  });
+};
+
 function reloadImage() {
   const img = document.getElementById('image');
   const newImg = new Image();
@@ -68,6 +123,13 @@ socket.addEventListener('message', ev => {
   // log2('Ofest set: ' + data.temperature + '     Sjældnest set: ' + data.temperature, 'black');
   checkImage();
 });
+
+// Call renderRandomCards initially and then every 5 seconds
+renderRandomCards();
+setInterval(renderRandomCards, 5000);
+
+
+
 
 
 // const log = (text, color) => {

@@ -3,3 +3,12 @@
     height: 10vw;
     object-fit: cover;
 }
+.card-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+.card {
+    width: 18rem;
+    margin: 10px;
+}
