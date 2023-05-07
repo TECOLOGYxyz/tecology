@@ -17,20 +17,43 @@ def index():
 
 @sock.route('/echo')
 def echo(sock):
-    conn = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/environment.db')
-    c = conn.cursor()
+    connEnv = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/environment.db')
+    c = connEnv.cursor()
+
+    connDetect = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/detections.db')
+
     while True:
 
         ### Environment
         # Query the latest number from the database
         #cursor = conn.execute("SELECT number FROM environment ORDER BY id DESC LIMIT 1")
-        x = conn.execute("SELECT temperature, pressure, humidity FROM environment ORDER BY id DESC LIMIT 1")
-        print("Hello")
-        envV = x.fetchall()[0]
+        envVariables = connEnv.execute("SELECT temperature, pressure, humidity FROM environment ORDER BY id DESC LIMIT 1")
+        envV = envVariables.fetchall()[0]
         latestTemp, latestPress, latestHumi = envV[0], envV[1], envV[2]
-        print(envV)
+        print("Latest env: ", envV)
 
-        s = f'{{"temperature": {latestTemp}, "humidity": {latestHumi}, "pressure": {latestPress}}}'
+        detVariables = connDetect.execute(f"SELECT SUM({'today'}), SUM({'total'}) FROM {'detect'}")
+        sums = detVariables.fetchall()[0]
+        sumToday, sumTotal = int(sums[0]), int(sums[1])
+
+        print("Sum today:", sumToday)
+        print(type(sumToday))
+        print("Sum all:", sumTotal)
+
+        detVariables = connDetect.execute(f"SELECT {'class'}, {'total'} FROM {'detect'} WHERE {'total'} = (SELECT MAX({'total'}) FROM {'detect'})")
+        seenMosts = detVariables.fetchall()[0]
+        seenMostClass, seenMostNumber = str(seenMosts[0]), int(seenMosts[1])
+
+        detVariables = connDetect.execute(f"SELECT {'class'}, {'total'} FROM {'detect'} WHERE {'total'} > 0 AND {'total'} = (SELECT MIN({'total'}) FROM {'detect'} WHERE {'total'} > 0)")
+        seenLeasts = detVariables.fetchall()[0]
+        seenLeastClass, seenLeastNumber = seenLeasts[0], int(seenLeasts[1])
+
+        print("Seen most: ", seenMostClass, seenMostNumber)
+        print("Seen least: ", seenLeastClass, seenLeastNumber) 
+        print(repr(seenMostClass))
+        print(repr(latestTemp))
+        
+        s = f'{{"temperature": {latestTemp}, "humidity": {latestHumi}, "pressure": {latestPress}, "sumToday": {sumToday}, "sumTotal": {sumTotal}, "seenMostClass": "{seenMostClass}", "seenMostNumber": {seenMostNumber}, "seenLeastClass": "{seenLeastClass}", "seenLeastNumber": {seenLeastNumber}}}'
         sock.send(s)
 
 

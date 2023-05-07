@@ -2,8 +2,12 @@ const log = (text, color) => {
   document.getElementById('log').innerHTML += `<span style="color: ${color}">${text}</span><br>`;
 };
 
-const log2 = (text, color) => {
-  document.getElementById('log2').innerHTML += `<span style="color: ${color}">${text}</span><br>`;
+const log2 = (text, color, size) => {
+  document.getElementById('log2').innerHTML += `<span style="color: ${color}; font-size: ${size}em">${text}</span><br>`;
+};
+
+const log3 = (text, color, size) => {
+  document.getElementById('log3').innerHTML += `<span style="color: ${color}; font-size: ${size}em">${text}</span><br>`;
 };
 
 
@@ -48,7 +52,18 @@ socket.addEventListener('message', ev => {
   log('Luftfugtighed: ' + data.humidity + '%', 'blue');
   log('Lufttryk: ' + data.pressure + 'hPa', 'green');
   
-  // document.getElementById('log2').innerHTML = ''; // Clear existing content
+  
+  
+  document.getElementById('log2').innerHTML = ''; // Clear existing content
+  log2('Oftest set: ' + data.seenMostClass + ' (' + data.seenMostNumber + ')', 'black', 1.3)
+  log2('Sjældnest set: ' + data.seenLeastClass + ' (' + data.seenLeastNumber + ')', 'black', 1.3)
+
+  document.getElementById('log3').innerHTML = ''; // Clear existing content
+  log3('Detektioner i dag: ' + data.sumToday, 'black', 1.3)
+  log3('Detektioner i alt: ' + data.sumTotal, 'black', 1.3)
+
+  
+
   // log2('Detektioner i dag: ' + data.temperature + '     Detektioner i alt: ' + data.temperature, 'black');
   // log2('Ofest set: ' + data.temperature + '     Sjældnest set: ' + data.temperature, 'black');
   checkImage();

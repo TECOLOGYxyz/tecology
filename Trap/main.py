@@ -113,7 +113,7 @@ def runGoodmorning():
 
     # Create folders for todays data
     today = datetime.datetime.now().strftime('%Y-%m-%d')
-    dataToday = os.path.join("data", today)
+    dataToday = os.path.join("/home/tecologyTrap1/tecology/Trap/data", today)
 
     if not os.path.exists(dataToday):
         os.makedirs(dataToday)
@@ -130,7 +130,7 @@ def runGoodmorning():
     success = picam2.wait(job)
 
     # Check internet connection
-    helpers.checkInternet()
+    #helpers.checkInternet()
 
     return dataToday, picam2
 
@@ -145,6 +145,14 @@ def runAwake(dataToday, picam2):
     light.lightKill()
 
     #TODO: Set today of detections to zero
+    
+    # Zero detection numbers for today
+    connDetect = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/detections.db')
+    cDetect = connDetect.cursor()
+    cDetect.execute(f"UPDATE {'detect'} SET {'today'} = 0")
+    connDetect.commit()
+    connDetect.close()
+
 
     startTime = datetime.datetime.now()
     i = 0
