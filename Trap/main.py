@@ -13,6 +13,8 @@ from gpiozero import CPUTemperature
 import csv
 from collections import Counter
 import socket
+import numpy as np
+
 
 # Webapp
 import threading
@@ -108,6 +110,54 @@ else:
 
 screen.welcomeScreen(hostName, hostAddress, netStatus)
 
+
+
+# Maximum number of detections to save
+MAX_DETECTIONS = 4
+
+# Desired dimensions for the cropped and resized images
+CROP_SIZE = (100, 120)
+
+# List to store the latest four detections
+latest_detections = []
+
+
+def save_crop_image(image, detection):
+    # Extract the bounding box coordinates from the detection
+    x, y, w, h = detection[0],detection[1],detection[2],detection[3]
+    
+    # Calculate the padding values to create a square crop
+    max_dim = max(w, h)
+    pad_x = (max_dim - w) // 2
+    pad_y = (max_dim - h) // 2
+    
+    # Apply padding to the bounding box
+    x -= pad_x
+    y -= pad_y
+    w = h = max_dim
+    
+    # Extract the crop region from the image
+    crop_image = image[max(0, y):y+h, max(0, x):x+w]
+    
+    # Resize the crop image to the desired dimensions
+    crop_image = cv2.resize(crop_image, CROP_SIZE)
+    
+    # Create a white bar image
+    bar_height = 20
+    bar_image = np.ones((bar_height, crop_image.shape[1], 3), dtype=np.uint8) * 255
+    
+    # Concatenate the crop image and the white bar image
+    result_image = np.concatenate((crop_image, bar_image), axis=0)
+    
+    # Add the detection class label text to the result image
+    class_label = detection[5]
+    cv2.putText(result_image, class_label, (5, crop_image.shape[0] + 15),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+    
+    # Save the result image
+    cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/crop_{}.jpg'.format(class_label), result_image)
+
+
 def runGoodmorning():
     light.lightPowerUp()
 
@@ -140,6 +190,7 @@ def runGoodmorning():
 
 maxInterval = 5
 cpuThreshold = 72
+latest_detections = []
 
 def runAwake(dataToday, picam2):
     light.lightKill()
@@ -196,10 +247,13 @@ def runAwake(dataToday, picam2):
         p = ai.inference(arrayInf)
 
         if p:
+            cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', arrayInf) # Save image for webapp
+
             arrayInf, conOut = p
-            cv2.imwrite(imagePath, array)
+            cv2.imwrite(imagePath, array) # Save image for storage
             startTime = datetime.datetime.now()
             
+            # Save detection numbers in db for webapp
             detectionCount = Counter(insect for _, _, _, _, _, insect in conOut)
 
             connDetect = sqlite3.connect('/home/tecologyTrap1/tecology/Trap/data/detections.db')
@@ -217,14 +271,25 @@ def runAwake(dataToday, picam2):
                 # Update the values in the detect table for the insect
                 cDetect.execute("UPDATE detect SET today=?, total=? WHERE class=?", (today, total, insect))
 
-            # Commit the changes to the database
             connDetect.commit()
-
-            # Close the database connection
             connDetect.close()
+
+            print("Array info:")
+            print(arrayInf)
+            print("conOut:")
+            print(conOut)
+
+            for det in conOut:
+                save_crop_image(array, det)
+
+            ###### Save crops draft ######
+
+
+
 
             # TODO: Save detection coordinates to database!
         else:
+            cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', arrayInf)
             elapsed = datetime.datetime.now() - startTime
             if elapsed > datetime.timedelta(minutes=5):
                 cv2.imwrite(imagePath, array)
@@ -232,8 +297,7 @@ def runAwake(dataToday, picam2):
                 startTime = datetime.datetime.now()
                 # TODO: Save info to database!
 
-        cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', arrayInf)
-
+    
 
         # Throttle and sleep
         cpu = CPUTemperature()
@@ -251,25 +315,6 @@ def runAwake(dataToday, picam2):
             else:
                 print(f"CPU temperature normal ({str(cpu)} C). Running inference every {interval} seconds.")
                 time.sleep(interval)
-
-
-        # print("Current cpu temp: ", cpu)
-
-        # print("Sleeping for ", interval, " seconds.")
-        # time.sleep(interval)
-
-
-
-        #time.sleep(10.0 - ((time.time() - starttime) % 10.0))
-
-#         # Save image
-        
-#         # Run inference
-
-#         # Save vision info to vision databases
-
-#         # Wait for 5 seconds before reading sensor data again
-#         time.sleep(5)
 
 
 

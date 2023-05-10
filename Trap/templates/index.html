@@ -26,40 +26,34 @@
             <div class="col">
                 <h2>Live stream</h2>
                 <img id="image" src="{{ url_for('static', filename='latest.jpg') }}" alt="Image 1" class="img-fluid">
-            </div>
 
-            <div class="col-6">
-                <div class="row">
-              
-
-                <hr class="underline-short">
-                <h2>Kendte arter</h2>
-                <div id="speciesCards" class="card-container"></div>
-            </div>
-        </div>
-      </div>
-    </div>
-
-        <div class="row">
-            <div class="col">
-              <div class="col">
                 <h2>Seneste resultater</h2>
                 <hr class="underline-short">
                 <div id="log"></div>
                 <hr class="underline-short">
-            </div>
 
-        <div class="col">
-          <div class="row">
-            <div class="col">
-            <div id="log2"></div></div>
+                <div class="col">
+                    <div class="row">
+                    <div class="col">
+                    <div id="log2"></div></div>
+          
+                    <div class="col">
+                    <div class="row"><div id="log3">
 
-        <div class="col">
-          <div class="row"><div id="log3">
-          </div>
-          </div>
-        </div>
-        </div>
+
+            </div></div></div></div></div></div>
+
+            <div class="col-6">
+                <div class="row">
+              
+                <h2>Seneste detektioner</h2>
+                <h3> Vises her...</h3>
+                <h3> Vises her...</h3>
+                <h3> Vises her...</h3>
+                <h3> Vises her...</h3>
+                <h2>Kendte arter</h2>
+                <div id="speciesCards" class="card-container"></div>
+                </div>
             </div>
         </div>
 
@@ -74,6 +68,5 @@
           <script type=text/javascript src="{{
             url_for('static', filename='js/index.js')
           }}"></script>
-
   </body>
 </html>
