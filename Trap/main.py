@@ -116,16 +116,20 @@ screen.welcomeScreen(hostName, hostAddress, netStatus)
 MAX_DETECTIONS = 4
 
 # Desired dimensions for the cropped and resized images
-CROP_SIZE = (100, 120)
-
-# List to store the latest four detections
-latest_detections = []
+CROP_SIZE = (200, 200)
 
 
-def save_crop_image(image, detection):
+
+
+def save_crop_image(image, detection, i):
     # Extract the bounding box coordinates from the detection
-    x, y, w, h = detection[0],detection[1],detection[2],detection[3]
-    
+    xmin, ymin, xmax, ymax = detection[0],detection[1],detection[2],detection[3]
+    x = xmin #int((xmin + xmax)/2)
+    y = ymin # int((ymin + ymax)/2)
+    w = xmax - xmin
+    h = ymax - ymin
+    conf = detection[4]
+
     # Calculate the padding values to create a square crop
     max_dim = max(w, h)
     pad_x = (max_dim - w) // 2
@@ -138,7 +142,6 @@ def save_crop_image(image, detection):
     
     # Extract the crop region from the image
     crop_image = image[max(0, y):y+h, max(0, x):x+w]
-    
     # Resize the crop image to the desired dimensions
     crop_image = cv2.resize(crop_image, CROP_SIZE)
     
@@ -151,11 +154,12 @@ def save_crop_image(image, detection):
     
     # Add the detection class label text to the result image
     class_label = detection[5]
-    cv2.putText(result_image, class_label, (5, crop_image.shape[0] + 15),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+    imageLabel = f'{class_label} ({int(conf*100)}%)'
+    cv2.putText(result_image, imageLabel, (5, crop_image.shape[0] + 15),
+                cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
     
     # Save the result image
-    cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/crop_{}.jpg'.format(class_label), result_image)
+    cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/crop_{}.jpg'.format(i), result_image)
 
 
 def runGoodmorning():
@@ -190,9 +194,11 @@ def runGoodmorning():
 
 maxInterval = 5
 cpuThreshold = 72
-latest_detections = []
+
 
 def runAwake(dataToday, picam2):
+    latest_detections = []
+
     light.lightKill()
 
     #TODO: Set today of detections to zero
@@ -279,8 +285,20 @@ def runAwake(dataToday, picam2):
             print("conOut:")
             print(conOut)
 
-            for det in conOut:
-                save_crop_image(array, det)
+            # for det in conOut:
+            #     save_crop_image(array, det)
+            
+            latest_detections.extend(conOut)
+
+                # Save crops of the latest four detections
+
+            # BUG: This crops out old detections in new images without the object present.     
+            for i, detection in enumerate(latest_detections[-MAX_DETECTIONS:]):
+                save_crop_image(array, detection, i)
+    
+            # Remove older detections if the list exceeds the maximum number of detections
+            if len(latest_detections) > MAX_DETECTIONS:
+                latest_detections = latest_detections[-MAX_DETECTIONS:]
 
             ###### Save crops draft ######
 
