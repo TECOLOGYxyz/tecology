@@ -25,10 +25,8 @@
         <div class="row">
             <div class="col">
                 <h2>Live stream</h2>
+                
                 <img id="image" src="{{ url_for('static', filename='latest.jpg') }}" alt="Image 1" class="img-fluid">
-
-                <h2>Seneste resultater</h2>
-                <hr class="underline-short">
                 <div id="log"></div>
                 <hr class="underline-short">
 
@@ -47,10 +45,16 @@
                 <div class="row">
               
                 <h2>Seneste detektioner</h2>
-                <h3> Vises her...</h3>
-                <h3> Vises her...</h3>
-                <h3> Vises her...</h3>
-                <h3> Vises her...</h3>
+                <div class="col">
+                <img id="crop1" src="{{ url_for('static', filename='crop_0.jpg') }}" alt="Crop 1" class="img-fluid"></div>
+                <div class="col">
+                <img id="crop2" src="{{ url_for('static', filename='crop_1.jpg') }}" alt="Crop 2" class="img-fluid"></div>
+                <div class="col">
+                <img id="crop3" src="{{ url_for('static', filename='crop_2.jpg') }}" alt="Crop 3" class="img-fluid"></div>
+                <div class="col">
+                <img id="crop4" src="{{ url_for('static', filename='crop_3.jpg') }}" alt="Crop 4" class="img-fluid"></div>
+
+                <hr class="underline-short">
                 <h2>Kendte arter</h2>
                 <div id="speciesCards" class="card-container"></div>
                 </div>

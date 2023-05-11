@@ -18,15 +18,48 @@ const cards = [
     text: "Arten er en de mest almindelige humlebier i Danmark. Humlebierne har et-årige samfund og få overvintrende dronninger fører slægten videre året efter."
   },
   {
-    imageSrc: "dblbSvirre.jpg",
-    title: "Hullubullu",
-    text: "Arten er en efter."
+    imageSrc: "syvplettetMariehone.jpg",
+    title: "Syvplettet mariehøne",
+    text: "Den mest almindelige af de ca. 50 arter af mariehøns i Danmark. Den lever især af bladlus og bestandene svinger i takt med forekomsten af disse, men æder også andet."
   },
   {
     imageSrc: "dblbSvirre.jpg",
-    title: "Halaballa",
-    text: "Arten er slægten videre året efter."
+    title: "Europæisk honningbi",
+    text: "Arten er spredt til det meste af verden på grund af dens evne til at producere honning. Bierne har et kompliceret dansesprog og kan eksempelvis kommunikere retning og afstand til god nektar til hinanden."
   },
+  {
+    imageSrc: "stenhumle.jpg",
+    title: "Stenhumle",
+    text: "Arten er slægten videre året efter."
+  }
+  // {
+  //   imageSrc: "dblbSvirre.jpg",
+  //   title: "Halaballa",
+  //   text: "Arten er slægten videre året efter."
+  // },
+  // {
+  //   imageSrc: "dblbSvirre.jpg",
+  //   title: "Halaballa",
+  //   text: "Arten er slægten videre året efter."
+  // },
+  // {
+  //   imageSrc: "dblbSvirre.jpg",
+  //   title: "Halaballa",
+  //   text: "Arten er slægten videre året efter."
+  // },
+  // {
+  //   imageSrc: "dblbSvirre.jpg",
+  //   title: "Halaballa",
+  //   text: "Arten er slægten videre året efter."
+  // },
+  // {
+  //   imageSrc: "dblbSvirre.jpg",
+  //   title: "Halaballa",
+  //   text: "Arten er slægten videre året efter."
+  // },
+
+
+
   // Add more card objects here
 ];
 
@@ -65,8 +98,86 @@ const renderRandomCards = () => {
     container.innerHTML += cardHtml;
   });
 };
-function reloadImage() {
-  const img = document.getElementById('image');
+
+
+// function reloadImage() {
+//   const mainImg = document.getElementById('image');
+//   const otherImgs = document.getElementsByClassName('other-image');
+
+//   // Create an array of image elements to reload
+//   const imagesToReload = [mainImg, ...otherImgs];
+
+//   for (let img of imagesToReload) {
+//     const newImg = document.createElement('img');
+//     newImg.style.display = 'none';
+
+//     // Preload the new image
+//     newImg.onload = function() {
+//       // Replace the old image with the new image
+//       img.src = newImg.src;
+//       newImg.remove(); // Remove the hidden img element
+//       console.log('Image reloaded successfully.');
+//     };
+//     newImg.onerror = function() {
+//       console.log('Failed to load image, retrying in 5 seconds...');
+//       setTimeout(reloadImage, 500); // Retry after 0.5 seconds
+//       newImg.remove(); // Remove the hidden img element
+//     };
+//     newImg.src = img.src.split('?')[0] + '?rand=' + Math.random(); // Add random query param to force reload
+
+//     // Append the hidden img element to the document body
+//     document.body.appendChild(newImg);
+//   }
+// }
+
+
+// function reloadImage() {
+//   const img = document.getElementById('image');
+//   const newImg = document.createElement('img');
+//   newImg.style.display = 'none';
+
+//   // Preload the new image
+//   newImg.onload = function() {
+//     // Replace the old image with the new image
+//     img.src = newImg.src;
+//     newImg.remove(); // Remove the hidden img element
+//     console.log('Image reloaded successfully.');
+//   };
+//   newImg.onerror = function() {
+//     console.log('Failed to load image, retrying in 5 seconds...');
+//     setTimeout(reloadImage, 500); // Retry after 0.5 seconds
+//     newImg.remove(); // Remove the hidden img element
+//   };
+//   newImg.src = img.src.split('?')[0] + '?rand=' + Math.random(); // Add random query param to force reload
+
+//   // Append the hidden img element to the document body
+//   document.body.appendChild(newImg);
+// }
+
+// function checkImage() {
+//   const img = document.getElementById('image');
+//   const xhr = new XMLHttpRequest();
+//   xhr.open('HEAD', img.src);
+//   xhr.onreadystatechange = function() {
+//     if (xhr.readyState === xhr.DONE) {
+//       if (xhr.status === 200) {
+//         console.log('Image loaded successfully.');
+//         reloadImage();
+//       } else {
+//         console.log('Failed to load image, retrying in 5 seconds...');
+//         setTimeout(checkImage, 500); // retry after 5 seconds
+//       }
+//     }
+//   }
+//   xhr.send();
+// }
+
+
+
+
+
+
+function reloadImage(img) {
   const newImg = document.createElement('img');
   newImg.style.display = 'none';
 
@@ -78,8 +189,8 @@ function reloadImage() {
     console.log('Image reloaded successfully.');
   };
   newImg.onerror = function() {
-    console.log('Failed to load image, retrying in 5 seconds...');
-    setTimeout(reloadImage, 500); // Retry after 0.5 seconds
+    console.log('Failed to load image, retrying in 0.5 seconds...');
+    setTimeout(reloadImage, 500, img); // Retry after 0.5 seconds
     newImg.remove(); // Remove the hidden img element
   };
   newImg.src = img.src.split('?')[0] + '?rand=' + Math.random(); // Add random query param to force reload
@@ -88,33 +199,37 @@ function reloadImage() {
   document.body.appendChild(newImg);
 }
 
-function checkImage() {
-  const img = document.getElementById('image');
+function checkImage(img) {
   const xhr = new XMLHttpRequest();
   xhr.open('HEAD', img.src);
   xhr.onreadystatechange = function() {
     if (xhr.readyState === xhr.DONE) {
       if (xhr.status === 200) {
         console.log('Image loaded successfully.');
-        reloadImage();
+        reloadImage(img);
       } else {
-        console.log('Failed to load image, retrying in 5 seconds...');
-        setTimeout(checkImage, 500); // retry after 5 seconds
+        console.log('Failed to load image, retrying in 0.5 seconds...');
+        setTimeout(checkImage, 500, img); // retry after 0.5 seconds
       }
     }
   }
   xhr.send();
 }
 
+// Example usage:
+const mainImg = document.getElementById('image');
+const otherImgs = document.getElementsByClassName('other-image');
+
+
+
+
+
+
 const socket = new WebSocket('ws://' + location.host + '/echo');
 socket.addEventListener('message', ev => {
   const data = JSON.parse(ev.data);
   document.getElementById('log').innerHTML = ''; // Clear existing content
   log('<strong>Temperatur:</strong> ' + data.temperature + '&deg;C' + '&nbsp &#183 &nbsp' + '<strong>Luftfugtighed:</strong> ' + data.humidity + '%' + '&nbsp &#183 &nbsp' + '<strong>Lufttryk:</strong> ' + data.pressure + 'hPa' , 'black');
-
-  // log('Temperatur: ' + data.temperature + '&deg;C', 'black');
-  // log('Luftfugtighed: ' + data.humidity + '%', 'blue');
-  // log('Lufttryk: ' + data.pressure + 'hPa', 'green');
   
   document.getElementById('log2').innerHTML = ''; // Clear existing content
   log2('<strong>Oftest set:</strong> ' + data.seenMostClass + ' (' + data.seenMostNumber + ')', 'black', 1.3)
@@ -125,12 +240,26 @@ socket.addEventListener('message', ev => {
   log3('<strong>Detektioner i alt:</strong> ' + data.sumTotal, 'black', 1.3)
 
 
-  checkImage();
+  // checkImage();
+
+  // Call checkImage() for each image element that needs reloading
+  checkImage(mainImg); // Main image
+  checkImage(crop1);
+  checkImage(crop2);
+  checkImage(crop3);
+  checkImage(crop4);
+
+  //renderRandomCards();
+
+// for (let img of otherImgs) {
+//   checkImage(img); // Additional images
+// }
+
 });
 
 // Call renderRandomCards initially and then every 5 seconds
 renderRandomCards();
-setInterval(renderRandomCards, 60000);
+setInterval(renderRandomCards, 10000);
 
 
 
