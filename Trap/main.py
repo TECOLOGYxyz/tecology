@@ -162,6 +162,15 @@ def save_crop_image(image, detection, i):
     cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/crop_{}.jpg'.format(i), result_image)
 
 
+# Make logo crops
+tecologyCrop = cv2.imread(r'/home/tecologyTrap1/tecology/Trap/static/tecologyCrop.jpg')
+startCrop = [(0,0,200,200,1.0,"TL"),(0,0,200,200,1.0,"BL"),(0,0,200,200,1.0,"TR"),(0,0,200,200,1.0,"BR")]
+for i, detection in enumerate(startCrop):
+    save_crop_image(tecologyCrop, detection, i)
+
+print("Made logo crops")
+
+
 def runGoodmorning():
     light.lightPowerUp()
 
@@ -197,7 +206,10 @@ cpuThreshold = 72
 
 
 def runAwake(dataToday, picam2):
+
+    cropNumber = 0
     latest_detections = []
+    consecutive_detections = 0
 
     light.lightKill()
 
@@ -253,6 +265,9 @@ def runAwake(dataToday, picam2):
         p = ai.inference(arrayInf)
 
         if p:
+
+            consecutive_detections += 1
+
             cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', arrayInf) # Save image for webapp
 
             arrayInf, conOut = p
@@ -280,33 +295,22 @@ def runAwake(dataToday, picam2):
             connDetect.commit()
             connDetect.close()
 
-            print("Array info:")
-            print(arrayInf)
-            print("conOut:")
-            print(conOut)
-
-            # for det in conOut:
-            #     save_crop_image(array, det)
-            
-            latest_detections.extend(conOut)
-
-                # Save crops of the latest four detections
-
-            # BUG: This crops out old detections in new images without the object present.     
-            for i, detection in enumerate(latest_detections[-MAX_DETECTIONS:]):
-                save_crop_image(array, detection, i)
-    
-            # Remove older detections if the list exceeds the maximum number of detections
-            if len(latest_detections) > MAX_DETECTIONS:
-                latest_detections = latest_detections[-MAX_DETECTIONS:]
-
-            ###### Save crops draft ######
-
-
+            # Produce crops for webapp
+            for i, detection in enumerate(conOut[:MAX_DETECTIONS]):
+                save_crop_image(array, detection, cropNumber)
+                cropNumber = (cropNumber + 1) % MAX_DETECTIONS
 
 
             # TODO: Save detection coordinates to database!
+
+            if consecutive_detections >= 5:
+                print("Five consecutive detections made. Sleeping for 3 minutes.")
+                time.sleep(180)  # Sleep for 3 minutes (180 seconds)
+                consecutive_detections = 0
+
         else:
+            consecutive_detections = 0 
+            
             cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', arrayInf)
             elapsed = datetime.datetime.now() - startTime
             if elapsed > datetime.timedelta(minutes=5):
