@@ -14,7 +14,7 @@ import csv
 from collections import Counter
 import socket
 import numpy as np
-
+import asyncio
 
 # Webapp
 import threading
@@ -27,7 +27,10 @@ import helpers
 import screen
 import ai
 
-
+# Communication
+from aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 ###
 # Remember to put Restart=always in systemd service config!
 
@@ -205,7 +208,7 @@ maxInterval = 5
 cpuThreshold = 72
 
 
-def runAwake(dataToday, picam2):
+async def runAwake(dataToday, picam2):
 
     cropNumber = 0
     latest_detections = []
@@ -303,14 +306,15 @@ def runAwake(dataToday, picam2):
 
             # TODO: Save detection coordinates to database!
 
-            if consecutive_detections >= 5:
-                print("Five consecutive detections made. Sleeping for 3 minutes.")
-                time.sleep(180)  # Sleep for 3 minutes (180 seconds)
+            if consecutive_detections >= 2:
+                print("Five consecutive detections made. Sleeping for 30 seconds.")
+                #time.sleep(180)  # Sleep for 3 minutes (180 seconds)
                 consecutive_detections = 0
+                await asyncio.sleep(30)
 
         else:
             consecutive_detections = 0 
-            
+
             cv2.imwrite('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', arrayInf)
             elapsed = datetime.datetime.now() - startTime
             if elapsed > datetime.timedelta(minutes=5):
@@ -345,8 +349,62 @@ def runAwake(dataToday, picam2):
         ### Health checks
         # Check CPU tempt to throttle down if getting too hot
 
-# ######## GET READY FOR BED ########
 
+
+bot = Bot('5925269158:AAFdeBEI_1kS2TGXMI1TOcTygBWW8ZjktF0')
+dp = Dispatcher(bot)
+
+
+@dp.message_handler(commands=['start'])
+async def process_start_command(message: types.Message):
+    keyboard = InlineKeyboardMarkup()
+    getimage_button = InlineKeyboardButton("Latest image", callback_data="getimage")
+    keyboard.add(getimage_button)
+
+    cputemp_button = InlineKeyboardButton("CPU temp", callback_data="getcputemp")
+    keyboard.add(cputemp_button)
+
+    await message.reply("Trap is listening. Use the buttons below to send requests.", reply_markup=keyboard)
+
+@dp.callback_query_handler(lambda c: c.data == 'getimage')
+async def process_getimage_callback(callback_query: types.CallbackQuery):
+    try:
+        with open('/home/tecologyTrap1/tecology/Trap/static/latest.jpg', 'rb') as photo:
+            await bot.send_photo(callback_query.from_user.id, photo, caption='Here is the latest image.')
+    except Exception as e:
+        print(f'Failed to send image. Exception: {e}')
+
+@dp.callback_query_handler(lambda c: c.data == 'getcputemp')
+async def process_getcputemp_callback(callback_query: types.CallbackQuery):
+    cpuT = CPUTemperature()
+    cpuT = round(cpuT.temperature, 1)
+    await bot.send_message(callback_query.from_user.id, f"CPU temperature is {cpuT} °C")
+
+async def setup_telegram_bot(token):
+    try:
+        bot = Bot(token)
+        dp = Dispatcher(bot)
+
+        dp.register_message_handler(process_start_command, commands=['start'])
+        dp.register_callback_query_handler(process_getimage_callback, lambda c: c.data == 'getimage')
+        dp.register_callback_query_handler(process_getcputemp_callback, lambda c: c.data == 'getcputemp')
+
+        await dp.start_polling()
+
+    except Exception as e:
+        print(f'AiogramError occurred: {e}. Unable to connect to Telegram servers.')
+
+async def runTrap():
+
+    dataToday, picam2 = runGoodmorning()
+
+    task1 = asyncio.create_task(runAwake(dataToday, picam2))
+    task2 = asyncio.create_task(setup_telegram_bot('5925269158:AAFdeBEI_1kS2TGXMI1TOcTygBWW8ZjktF0'))
+
+    await asyncio.gather(task1, task2)
+
+
+# ######## GET READY FOR BED ########
 
 def runBedReady():
     """
@@ -372,21 +430,13 @@ def runNocturnal():
 
 
 
-
-
 # ######## GO TO SLEEP ########
 # #light.lightKill()
 # # Take an image an hour - just for fun? With flash
 
 
-
-def runTrap():
-    dataToday, picam2 = runGoodmorning()
-    runAwake(dataToday, picam2)
-
 if __name__ == '__main__':
-    runTrap()
-
+    asyncio.run(runTrap())
 
 
 
